@@ -36,7 +36,7 @@ const ProductDetails = () => {
                 <div className="w-full h-48 bg-blue-300 rounded-t-xl md:w-48 md:shrink-0 md:rounded-t-none md:rounded-l-xl p-2">
                     <img src={product.image} alt={product.title} className="w-full h-full object-contain" />
                 </div>
-                <div className="flex flex-col flex-1 gap-5 p-4 bg-white rounded-b-xl md:rounded-b-none md:rounded-r-xl">
+                <div className="flex flex-col flex-1 gap-5 p-4 bg-white rounded-b-xl md:rounded-bl-none md:rounded-tr-xl md:rounded-br-xl">
                     <h1 className="text-3xl font-bold text-blue-900 line-clamp-2">{product.title}</h1>
                     <div className="flex gap-5 items-center">
                         <span className="bg-blue-100 text-blue-900 text-xs px-3 py-1 rounded-full capitalize">{product.category}</span>
