@@ -1,16 +1,89 @@
-# React + Vite
+# Shopping Cart Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive shopping cart application built with React 19 and Vite. Products are fetched from the [Fake Store API](https://fakestoreapi.com/products) and users can browse, filter, view details, and manage a persistent cart.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Product listing** — fetches products from `fakestoreapi.com`, displays image, title, price, description, and star rating
+- **Product filtering** — search by keyword and filter by category via a dropdown
+- **Product detail page** — dedicated route with full product information
+- **Shopping cart** — slide-in sidebar drawer with add, remove, and quantity controls
+- **Cart persistence** — cart state is saved to `localStorage` and restored on reload
+- **Responsive design** — works on desktop, tablet, and mobile via Tailwind CSS
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer | Library / Tool |
+|---|---|
+| UI | React 19 |
+| Build | Vite 7 |
+| Routing | React Router 7 |
+| Styling | Tailwind CSS 4 (via `@tailwindcss/vite`) |
+| UI Components | Headless UI 2 |
+| Testing | Vitest 4 + React Testing Library |
+| Linting | ESLint 9 (flat config) |
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+Then open [http://localhost:5173](http://localhost:5173).
+
+## Scripts
+
+```bash
+npm run dev        # Start dev server with HMR
+npm run build      # Production build → dist/
+npm run preview    # Preview the production build locally
+npm run lint       # Run ESLint
+npm run test       # Run tests in watch mode
+npm run test:run   # Run tests once and exit
+```
+
+## Project Structure
+
+```
+src/
+├── App.jsx                        # Root component, router setup
+├── main.jsx                       # React entry point
+├── setupTests.js                  # Vitest global setup (jest-dom, fetch/localStorage mocks)
+├── hooks/
+│   ├── useProducts.js             # Fetches all products from the API
+│   └── useProduct.js              # Fetches a single product by ID
+└── components/
+    ├── layout/
+    │   ├── Header.jsx             # Top nav with cart toggle button
+    │   └── Main.jsx               # Page layout wrapper
+    ├── products/
+    │   ├── ProductGrid.jsx        # Renders filtered product grid
+    │   ├── ProductCard.jsx        # Individual product card with add-to-cart
+    │   ├── ProductDetails.jsx     # Full product detail view
+    │   ├── ProductFilters.jsx     # Search input + category dropdown
+    │   ├── StarRating.jsx         # Visual star rating component
+    │   ├── ProductSkeleton.jsx    # Loading skeleton for product cards
+    │   └── ProductDetailsSkeleton.jsx
+    └── cart/
+        ├── CartProvider.jsx       # Context + useReducer, localStorage persistence
+        ├── CartSideBar.jsx        # Slide-in drawer, body scroll lock
+        ├── CartItem.jsx           # Cart row with quantity input and remove
+        ├── CartRemove.jsx         # Confirmation dialog (portal)
+        ├── AddToCartButton.jsx    # Dual-mode: add button or quantity adjuster
+        └── useCart.js             # useContext(CartContext) hook
+```
+
+## Testing
+
+110 tests across 13 test files, co-located with source components.
+
+```bash
+npm run test:run
+```
+
+Test coverage includes:
+- Product data fetching (`useProducts`, `useProduct`)
+- Add-to-cart behavior and quantity updates (`CartProvider`, `AddToCartButton`)
+- Cart totals and item removal (`CartSideBar`, `CartItem`)
+- UI components in isolation (`ProductCard`, `ProductFilters`, `StarRating`, etc.)

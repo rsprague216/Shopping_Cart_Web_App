@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+/*
+ * Hide the browser's native number-input spin buttons (up/down arrows).
+ * The quantity field in CartItem uses custom +/- buttons instead,
+ * so the native controls are redundant and visually inconsistent.
+ * Three rules are needed to cover WebKit (Chrome/Safari), Firefox (-moz),
+ * and the modern standard (appearance: textfield).
+ */
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}

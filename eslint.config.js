@@ -23,6 +23,9 @@ export default defineConfig([
       },
     },
     rules: {
+      // Allow unused variables whose names start with an uppercase letter or
+      // underscore — this covers React component names that are imported for
+      // JSX but not called directly (e.g. import Foo from './Foo').
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },

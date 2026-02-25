@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Assignment brief — provided by hiring company, not for public distribution
+Project_Requirements.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
