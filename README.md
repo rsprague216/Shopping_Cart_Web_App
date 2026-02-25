@@ -15,34 +15,58 @@ A responsive shopping cart application built with React 19 and Vite. Products ar
 
 ## Tech Stack
 
-| Layer | Library / Tool |
-|---|---|
-| UI | React 19 |
-| Build | Vite 7 |
-| Routing | React Router 7 |
-| Styling | Tailwind CSS 4 (via `@tailwindcss/vite`) |
-| UI Components | Headless UI 2 |
-| Testing | Vitest 4 + React Testing Library |
-| Linting | ESLint 9 (flat config) |
+### Production dependencies
 
-## Getting Started
+| Package | Version | Purpose |
+|---|---|---|
+| react | 19.2.0 | UI library |
+| react-dom | 19.2.0 | DOM renderer |
+| react-router-dom | 7.13.1 | Client-side routing |
+| tailwindcss | 4.2.1 | Utility-first CSS framework |
+| @tailwindcss/vite | 4.2.1 | Tailwind Vite plugin (no config file needed) |
+| @headlessui/react | 2.2.9 | Accessible UI primitives (category dropdown) |
+| body-scroll-lock | 4.0.0-beta.0 | Prevents background scroll when cart is open |
+
+### Development dependencies
+
+| Package | Version | Purpose |
+|---|---|---|
+| vite | 7.3.1 | Build tool and dev server |
+| @vitejs/plugin-react | 5.1.1 | React Fast Refresh + JSX transform |
+| vitest | 4.0.18 | Test runner (Vite-native) |
+| @testing-library/react | 16.3.2 | Component rendering for tests |
+| @testing-library/user-event | 14.6.1 | User interaction simulation |
+| @testing-library/jest-dom | 6.9.1 | Custom DOM matchers |
+| jsdom | 28.1.0 | Browser-like DOM environment for tests |
+| eslint | 9.39.1 | Linter (flat config) |
+
+## Setup and Running Locally
+
+**Prerequisites**: Node.js 18+ and npm.
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/rsprague216/Shopping_Cart_Web_App.git
+cd Shopping_Cart_Web_App
+
+# 2. Install dependencies
 npm install
+
+# 3. Start the development server
 npm run dev
 ```
 
-Then open [http://localhost:5173](http://localhost:5173).
+Then open [http://localhost:5173](http://localhost:5173) in your browser. The dev server supports Hot Module Replacement (HMR) — changes are reflected instantly without a full page reload.
 
-## Scripts
+### All available scripts
 
 ```bash
 npm run dev        # Start dev server with HMR
 npm run build      # Production build → dist/
-npm run preview    # Preview the production build locally
-npm run lint       # Run ESLint
-npm run test       # Run tests in watch mode
-npm run test:run   # Run tests once and exit
+npm run preview    # Serve the production build locally for manual testing
+npm run lint       # Run ESLint across the project
+npm run test       # Run tests in watch mode (re-runs on file save)
+npm run test:run   # Run all tests once and exit (for CI / final check)
 ```
 
 ## Project Structure
@@ -78,14 +102,37 @@ src/
 
 ## Testing
 
-110 tests across 13 test files, co-located with source components.
+**Framework**: Vitest 4.0.18 + React Testing Library
+**Environment**: jsdom
+**Result**: 110 tests across 13 files — all passing
+
+### Run the tests
 
 ```bash
+# Run all tests once and print a summary
 npm run test:run
+
+# Run in watch mode during development
+npm run test
 ```
 
-Test coverage includes:
-- Product data fetching (`useProducts`, `useProduct`)
-- Add-to-cart behavior and quantity updates (`CartProvider`, `AddToCartButton`)
-- Cart totals and item removal (`CartSideBar`, `CartItem`)
-- UI components in isolation (`ProductCard`, `ProductFilters`, `StarRating`, etc.)
+### Test coverage
+
+| Area | File | Tests |
+|---|---|---|
+| Product data fetching | `useProducts.test.js` | 4 |
+| Single product fetching | `useProduct.test.js` | 6 |
+| Header / cart badge | `Header.test.jsx` | 6 |
+| Product grid | `ProductGrid.test.jsx` | 3 |
+| Product filters | `ProductFilters.test.jsx` | 17 |
+| Product card | `ProductCard.test.jsx` | 6 |
+| Product detail page | `ProductDetails.test.jsx` | 8 |
+| Star rating | `StarRating.test.jsx` | 5 |
+| Cart state (reducer + localStorage) | `CartProvider.test.jsx` | 14 |
+| Add to cart button | `AddToCartButton.test.jsx` | 9 |
+| Cart item row | `CartItem.test.jsx` | 16 |
+| Cart remove dialog | `CartRemove.test.jsx` | 4 |
+| Cart sidebar | `CartSideBar.test.jsx` | 12 |
+| **Total** | | **110** |
+
+Tests are co-located alongside their source files. The test setup (`src/setupTests.js`) provides global mocks for `fetch` and `localStorage` that are reset before each test, ensuring full isolation.
