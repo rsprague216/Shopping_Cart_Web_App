@@ -11,19 +11,19 @@ npm run preview   # Preview production build locally
 npm run lint      # Run ESLint (flat config, v9)
 ```
 
-**Testing**: No framework is set up yet. When adding tests, use **Vitest** (aligns with Vite) + **React Testing Library**. Install with:
+**Testing**: Vitest + React Testing Library are fully set up. Run with:
 ```bash
-npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom
+npm run test       # watch mode
+npm run test:run   # run once and exit
 ```
-Then add `"test": "vitest"` to package.json scripts and configure `vite.config.js` with `test: { environment: 'jsdom' }`.
 
 ## Architecture
 
-**Stack**: React 19, Vite 7, Tailwind CSS 4 (via `@tailwindcss/vite` plugin), ESLint 9 flat config.
+**Stack**: React 19, Vite 7, React Router 7, Tailwind CSS 4 (via `@tailwindcss/vite` plugin), Headless UI 2, ESLint 9 flat config.
 
 **Entry flow**:
 ```
-index.html → src/main.jsx (React 19 StrictMode) → src/App.jsx
+index.html → src/main.jsx (StrictMode + HashRouter) → src/App.jsx (CartProvider → Header / Main / CartSideBar)
 ```
 
 Tailwind is configured through the Vite plugin (no `tailwind.config.js` needed). ESLint uses the flat config format in `eslint.config.js` — do not use legacy `.eslintrc` format.
@@ -37,7 +37,7 @@ This is a hiring assignment to build a shopping cart app. Key requirements:
 - **Responsive design**: Must work on desktop, tablet, and mobile
 - **Unit tests**: Mandatory — must cover product data fetching, add-to-cart behavior, and cart updates (quantity, totals)
 
-No routing library, state management library, or testing framework is installed yet — all need to be added as part of implementation.
+All requirements are implemented. React Router 7 (HashRouter for GitHub Pages compatibility), cart state via Context + useReducer, and 110 passing tests across 13 files.
 
 ## Interaction Style
 
