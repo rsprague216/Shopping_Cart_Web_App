@@ -1,5 +1,7 @@
 # Shopping Cart Web App
 
+**Live demo**: https://rsprague216.github.io/Shopping_Cart_Web_App/
+
 A responsive shopping cart application built with React 19 and Vite. Products are fetched from the [Fake Store API](https://fakestoreapi.com/products) and users can browse, filter, view details, and manage a persistent cart.
 
 ## Features
