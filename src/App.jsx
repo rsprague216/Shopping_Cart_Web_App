@@ -16,9 +16,11 @@ import CartProvider from './components/cart/CartProvider';
 function App() {
   return (
     <CartProvider>
-      <Header />
-      <Main />
-      <CartSideBar />
+      <div className="min-h-screen bg-white dark:bg-slate-950">
+        <Header />
+        <Main />
+        <CartSideBar />
+      </div>
     </CartProvider>
   );
 };

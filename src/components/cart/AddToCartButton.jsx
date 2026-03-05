@@ -45,14 +45,14 @@ const AddToCartButton = ({ id, title, price, image }) => {
         <div className="flex w-full">
             {/* Decrement / remove button — shows trash icon and red hover when qty is 1 */}
             <button
-                className={`px-4 py-2 bg-blue-300 text-white rounded-l cursor-pointer hover:${cartQuantity > 1 ? "bg-blue-400" : "bg-red-400"}`}
+                className={`px-4 py-2 bg-blue-300 dark:bg-slate-700 text-white rounded-l cursor-pointer ${cartQuantity > 1 ? "hover:bg-blue-400 dark:hover:bg-slate-600" : "hover:bg-red-400 dark:hover:bg-red-500"}`}
                 aria-label={cartQuantity > 1 ? 'Remove one item' : 'Remove from cart'}
                 onClick={() => cartQuantity > 1 ? updateQuantity(id, cartQuantity - 1) : removeItem(id)}>
                 {cartQuantity > 1 ? '-' : removeIcon}
             </button>
             {/* Increment button — shows current count and a + on the right */}
             <button
-                className="px-4 py-2 flex-1 flex justify-between items-center bg-blue-300 text-white rounded-r cursor-pointer hover:bg-blue-400"
+                className="px-4 py-2 flex-1 flex justify-between items-center bg-blue-300 dark:bg-slate-700 text-white rounded-r cursor-pointer hover:bg-blue-400 dark:hover:bg-slate-600"
                 aria-label="Add one item"
                 onClick={() => updateQuantity(id, cartQuantity + 1)}>
                 <span>{cartQuantity} added</span>

@@ -30,7 +30,7 @@ const ProductFilters = ({ categories, selectedCategory, onCategoryChange, search
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 aria-label="Search products"
-                className="flex-1 px-4 py-2 border border-gray-300 border-r-0 rounded-l-lg h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-600 border-r-0 rounded-l-lg h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0 bg-white dark:bg-slate-800 dark:text-slate-100"
             />
 
             <div className="relative">
@@ -69,16 +69,16 @@ const ProductFilters = ({ categories, selectedCategory, onCategoryChange, search
                                 : 'All Categories'}
                         </span>
                     </ListboxButton>
-                    <ListboxOptions className="absolute right-0 mt-1 w-36 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+                    <ListboxOptions className="absolute right-0 mt-1 w-36 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-md shadow-lg z-10">
                         {/* Empty string value represents "no filter" — all products shown. */}
-                        <ListboxOption value="" className="cursor-pointer px-4 py-2 data-[focus]:bg-gray-100">
+                        <ListboxOption value="" className="cursor-pointer px-4 py-2 data-[focus]:bg-gray-100 dark:text-slate-100 dark:data-[focus]:bg-slate-700">
                             All Categories
                         </ListboxOption>
                         {categories.map((category) => (
                             <ListboxOption
                                 key={category}
                                 value={category}
-                                className="cursor-pointer px-4 py-2 data-[focus]:bg-gray-100"
+                                className="cursor-pointer px-4 py-2 data-[focus]:bg-gray-100 dark:text-slate-100 dark:data-[focus]:bg-slate-700"
                             >
                                 {/* Capitalise first letter — API values are lowercase (e.g. "electronics"). */}
                                 {category.charAt(0).toUpperCase() + category.slice(1)}

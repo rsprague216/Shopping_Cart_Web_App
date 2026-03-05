@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Use class-based dark mode (toggle `dark` on <html>) instead of prefers-color-scheme */
+@variant dark (&:where(.dark, .dark *));
+
 /*
  * Hide the browser's native number-input spin buttons (up/down arrows).
  * The quantity field in CartItem uses custom +/- buttons instead,

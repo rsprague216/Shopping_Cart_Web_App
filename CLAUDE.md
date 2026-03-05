@@ -26,7 +26,7 @@ npm run test:run   # run once and exit
 index.html → src/main.jsx (StrictMode + HashRouter) → src/App.jsx (CartProvider → Header / Main / CartSideBar)
 ```
 
-Tailwind is configured through the Vite plugin (no `tailwind.config.js` needed). ESLint uses the flat config format in `eslint.config.js` — do not use legacy `.eslintrc` format.
+Tailwind is configured through the Vite plugin (no `tailwind.config.js` needed). Dark mode uses class strategy — the `dark` class is toggled on `<html>` via the `useDarkMode` hook (`src/hooks/useDarkMode.js`), with `@variant dark` configured in `src/index.css`. ESLint uses the flat config format in `eslint.config.js` — do not use legacy `.eslintrc` format.
 
 ## Project Requirements
 
@@ -37,7 +37,7 @@ This is a hiring assignment to build a shopping cart app. Key requirements:
 - **Responsive design**: Must work on desktop, tablet, and mobile
 - **Unit tests**: Mandatory — must cover product data fetching, add-to-cart behavior, and cart updates (quantity, totals)
 
-All requirements are implemented. React Router 7 (HashRouter for GitHub Pages compatibility), cart state via Context + useReducer, and 110 passing tests across 13 files.
+All requirements are implemented. React Router 7 (HashRouter for GitHub Pages compatibility), cart state via Context + useReducer, dark mode via `useDarkMode` hook + Tailwind `dark:` variants, and 150 passing tests across 14 files.
 
 ## Interaction Style
 

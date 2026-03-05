@@ -28,9 +28,12 @@ const OpenCartButton = () => {
   return <button onClick={toggleCart}>Open Cart</button>;
 };
 
-const renderSidebar = ({ initialItems = [] } = {}) => {
+const renderSidebar = ({ initialItems = [], initialPromo = null } = {}) => {
   if (initialItems.length) {
     localStorage.setItem('cartItems', JSON.stringify(initialItems));
+  }
+  if (initialPromo) {
+    localStorage.setItem('appliedPromo', initialPromo);
   }
   return render(
     <MemoryRouter>
@@ -49,9 +52,10 @@ describe('empty cart state', () => {
     expect(screen.getByText('Your cart is empty')).toBeInTheDocument();
   });
 
-  it('displays a total of $0.00 when the cart is empty', () => {
+  it('displays a total equal to shipping cost only when the cart is empty', () => {
     renderSidebar();
-    expect(screen.getByText('Total: $0.00')).toBeInTheDocument();
+    // Empty cart: subtotal $0 + shipping $5.99 = $5.99
+    expect(screen.getByText('Total: $5.99')).toBeInTheDocument();
   });
 
   it('renders the checkout button in a disabled state when cart is empty', () => {
@@ -74,9 +78,9 @@ describe('cart with items', () => {
   });
 
   it('calculates and displays the correct total price across multiple items', () => {
-    // (20 * 2) + (15 * 3) = 40 + 45 = 85
+    // (20 * 2) + (15 * 3) = 40 + 45 = 85 subtotal + $5.99 shipping = $90.99
     renderSidebar({ initialItems: twoItems });
-    expect(screen.getByText('Total: $85.00')).toBeInTheDocument();
+    expect(screen.getByText('Total: $90.99')).toBeInTheDocument();
   });
 
   it('renders the checkout button as enabled when the cart has items', () => {
@@ -146,6 +150,113 @@ describe('open/close behavior', () => {
 
     // Should still be closed — the listener is only attached when isOpen is true
     expect(backdrop.className).toContain('pointer-events-none');
+  });
+});
+
+// ─── Promo code UI ────────────────────────────────────────────────────────────
+describe('promo code input', () => {
+  it('renders the promo code input and Apply button', () => {
+    renderSidebar();
+    expect(screen.getByRole('textbox', { name: 'Promo code' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument();
+  });
+
+  it('shows an error message when an invalid code is submitted', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.type(screen.getByRole('textbox', { name: 'Promo code' }), 'BOGUS');
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(/not a valid promo code/i);
+  });
+
+  it('shows an error when SAVE20 is applied but subtotal is below $100', async () => {
+    const user = userEvent.setup();
+    renderSidebar({
+      initialItems: [{ id: 1, title: 'Shirt', price: 20, image: 'img.jpg', quantity: 1 }],
+    });
+
+    await user.type(screen.getByRole('textbox', { name: 'Promo code' }), 'SAVE20');
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/\$100\.00/);
+  });
+
+  it('replaces the input with a badge when a valid code is applied', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.type(screen.getByRole('textbox', { name: 'Promo code' }), 'SAVE10');
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(screen.queryByRole('textbox', { name: 'Promo code' })).not.toBeInTheDocument();
+    expect(screen.getByText(/SAVE10 applied/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Remove promo code' })).toBeInTheDocument();
+  });
+
+  it('restores the input and clears badge when Remove is clicked', async () => {
+    const user = userEvent.setup();
+    renderSidebar({ initialPromo: 'SAVE10' });
+
+    await user.click(screen.getByRole('button', { name: 'Remove promo code' }));
+
+    expect(screen.getByRole('textbox', { name: 'Promo code' })).toBeInTheDocument();
+    expect(screen.queryByText(/SAVE10 applied/i)).not.toBeInTheDocument();
+  });
+
+  it('submits the promo code when Enter is pressed in the input', async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.type(screen.getByRole('textbox', { name: 'Promo code' }), 'FREESHIP{Enter}');
+
+    expect(screen.getByText(/FREESHIP applied/i)).toBeInTheDocument();
+  });
+});
+
+describe('price breakdown', () => {
+  const items = [{ id: 1, title: 'Shirt', price: 50, image: 'img.jpg', quantity: 2 }]; // $100 subtotal
+
+  it('shows subtotal and shipping lines', () => {
+    renderSidebar({ initialItems: items });
+    expect(screen.getByText('Subtotal')).toBeInTheDocument();
+    expect(screen.getByText('Shipping')).toBeInTheDocument();
+  });
+
+  it('shows $5.99 shipping when no promo is applied', () => {
+    renderSidebar({ initialItems: items });
+    expect(screen.getByText('$5.99')).toBeInTheDocument();
+  });
+
+  it('shows "Free" shipping when FREESHIP is applied', () => {
+    renderSidebar({ initialItems: items, initialPromo: 'FREESHIP' });
+    expect(screen.getByText('Free')).toBeInTheDocument();
+  });
+
+  it('shows a discount line when SAVE10 is applied', () => {
+    // $100 * 10% = $10 discount
+    renderSidebar({ initialItems: items, initialPromo: 'SAVE10' });
+    expect(screen.getByText('Discount (SAVE10)')).toBeInTheDocument();
+    expect(screen.getByText('-$10.00')).toBeInTheDocument();
+  });
+
+  it('does not show a discount line when FREESHIP is applied', () => {
+    renderSidebar({ initialItems: items, initialPromo: 'FREESHIP' });
+    expect(screen.queryByText(/Discount/)).not.toBeInTheDocument();
+  });
+
+  it('reflects the correct total with SAVE10 applied', () => {
+    // $100 subtotal - $10 discount + $5.99 shipping = $95.99
+    renderSidebar({ initialItems: items, initialPromo: 'SAVE10' });
+    expect(screen.getByText('Total: $95.99')).toBeInTheDocument();
+  });
+
+  it('reflects the correct total with FREESHIP applied', () => {
+    // $100 subtotal - $0 discount + $0 shipping = $100.00
+    renderSidebar({ initialItems: items, initialPromo: 'FREESHIP' });
+    expect(screen.getByText('Total: $100.00')).toBeInTheDocument();
   });
 });
 

@@ -17,10 +17,10 @@ const CartRemove = ({ id, title, onRemove, onCancel }) => {
     return createPortal(
         <div className="fixed inset-0 bg-black/30" onClick={(e) => e.stopPropagation()}>
             <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white p-10 rounded shadow">
-                    <p className="mb-4 text-lg text-blue-900">Remove {title} from cart?</p>
+                <div className="bg-white dark:bg-slate-800 p-10 rounded shadow">
+                    <p className="mb-4 text-lg text-blue-900 dark:text-slate-100">Remove {title} from cart?</p>
                     <div className="flex justify-center gap-4">
-                        <button className="px-4 py-2 bg-blue-300 rounded hover:bg-blue-400 cursor-pointer" onClick={onCancel}>Cancel</button>
+                        <button className="px-4 py-2 bg-blue-300 dark:bg-slate-700 rounded hover:bg-blue-400 dark:hover:bg-slate-600 cursor-pointer dark:text-slate-100" onClick={onCancel}>Cancel</button>
                         <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer" onClick={() => onRemove(id)}>Remove</button>
                     </div>
                 </div>

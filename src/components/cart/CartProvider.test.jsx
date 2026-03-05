@@ -7,11 +7,12 @@ import { useCart } from '../../hooks/useCart';
 // A minimal component that exposes cart state and all actions as clickable
 // buttons, letting tests interact with the cart purely through the UI.
 const TestConsumer = () => {
-  const { items, isOpen, addItem, removeItem, updateQuantity, toggleCart } = useCart();
+  const { items, isOpen, addItem, removeItem, updateQuantity, toggleCart, appliedPromo, applyPromo, removePromo } = useCart();
   return (
     <div>
       <div data-testid="item-count">{items.length}</div>
       <div data-testid="is-open">{String(isOpen)}</div>
+      <div data-testid="applied-promo">{appliedPromo ?? 'none'}</div>
       <button onClick={() => addItem({ id: 1, title: 'Shirt', price: 20, image: 'img.jpg' })}>
         Add Item 1
       </button>
@@ -23,6 +24,10 @@ const TestConsumer = () => {
       <button onClick={() => updateQuantity(1, 0)}>Set Qty 0</button>
       <button onClick={() => updateQuantity(1, 1000)}>Set Qty 1000</button>
       <button onClick={toggleCart}>Toggle Cart</button>
+      <button onClick={() => applyPromo('SAVE10')}>Apply SAVE10</button>
+      <button onClick={() => applyPromo('SAVE20')}>Apply SAVE20</button>
+      <button onClick={() => applyPromo('FREESHIP')}>Apply FREESHIP</button>
+      <button onClick={removePromo}>Remove Promo</button>
       {items.map(item => (
         <div key={item.id} data-testid={`item-${item.id}`}>
           {item.title} x{item.quantity}
@@ -235,5 +240,134 @@ describe('localStorage persistence', () => {
     );
 
     expect(screen.getByTestId('item-count')).toHaveTextContent('0');
+  });
+});
+
+// ─── APPLY_PROMO / REMOVE_PROMO actions ────────────────────────────────────────
+describe('APPLY_PROMO action', () => {
+  it('stores the promo code when a valid code is applied', async () => {
+    const user = userEvent.setup();
+    renderWithCart();
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE10' }));
+
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('SAVE10');
+  });
+
+  it('stores FREESHIP when that code is applied', async () => {
+    const user = userEvent.setup();
+    renderWithCart();
+
+    await user.click(screen.getByRole('button', { name: 'Apply FREESHIP' }));
+
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('FREESHIP');
+  });
+
+  it('rejects SAVE20 when subtotal is below $100 (returns error, no state change)', async () => {
+    const user = userEvent.setup();
+    // Items total $20 — below the $100 minimum for SAVE20
+    renderWithCart({
+      initialItems: [{ id: 1, title: 'Shirt', price: 20, image: 'img.jpg', quantity: 1 }],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE20' }));
+
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('none');
+  });
+
+  it('accepts SAVE20 when subtotal is at least $100', async () => {
+    const user = userEvent.setup();
+    renderWithCart({
+      initialItems: [{ id: 1, title: 'Shirt', price: 100, image: 'img.jpg', quantity: 1 }],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE20' }));
+
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('SAVE20');
+  });
+});
+
+describe('REMOVE_PROMO action', () => {
+  it('clears the applied promo code', async () => {
+    const user = userEvent.setup();
+    renderWithCart();
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE10' }));
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('SAVE10');
+
+    await user.click(screen.getByRole('button', { name: 'Remove Promo' }));
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('none');
+  });
+});
+
+describe('SAVE20 auto-invalidation', () => {
+  it('removes SAVE20 when REMOVE_ITEM drops subtotal below $100', async () => {
+    const user = userEvent.setup();
+    renderWithCart({
+      initialItems: [
+        { id: 1, title: 'Shirt', price: 80, image: 'img.jpg', quantity: 1 },
+        { id: 2, title: 'Hat', price: 30, image: 'img.jpg', quantity: 1 },
+      ],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE20' }));
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('SAVE20');
+
+    // Removing item 1 ($80) leaves $30 subtotal — below $100
+    await user.click(screen.getByRole('button', { name: 'Remove Item 1' }));
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('none');
+  });
+
+  it('removes SAVE20 when UPDATE_QUANTITY drops subtotal below $100', async () => {
+    const user = userEvent.setup();
+    renderWithCart({
+      initialItems: [
+        { id: 1, title: 'Shirt', price: 60, image: 'img.jpg', quantity: 2 }, // $120
+      ],
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE20' }));
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('SAVE20');
+
+    // Setting qty to 1 gives $60 subtotal — below $100
+    await user.click(screen.getByRole('button', { name: 'Set Qty 0' })); // clamped to 1 → $60
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('none');
+  });
+});
+
+describe('appliedPromo localStorage persistence', () => {
+  it('writes appliedPromo to localStorage when a promo is applied', async () => {
+    const user = userEvent.setup();
+    const setItemSpy = vi.spyOn(localStorage, 'setItem');
+    renderWithCart();
+
+    await user.click(screen.getByRole('button', { name: 'Apply SAVE10' }));
+
+    const calls = setItemSpy.mock.calls.filter(([key]) => key === 'appliedPromo');
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls[calls.length - 1][1]).toBe('SAVE10');
+  });
+
+  it('loads appliedPromo from localStorage on mount', () => {
+    localStorage.setItem('cartItems', JSON.stringify([
+      { id: 1, title: 'Shirt', price: 20, image: 'img.jpg', quantity: 1 },
+    ]));
+    localStorage.setItem('appliedPromo', 'SAVE10');
+
+    render(<CartProvider><TestConsumer /></CartProvider>);
+
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('SAVE10');
+  });
+
+  it('does not restore SAVE20 from localStorage if the cart no longer qualifies', () => {
+    // Cart is only $20 but SAVE20 was stored
+    localStorage.setItem('cartItems', JSON.stringify([
+      { id: 1, title: 'Shirt', price: 20, image: 'img.jpg', quantity: 1 },
+    ]));
+    localStorage.setItem('appliedPromo', 'SAVE20');
+
+    render(<CartProvider><TestConsumer /></CartProvider>);
+
+    expect(screen.getByTestId('applied-promo')).toHaveTextContent('none');
   });
 });

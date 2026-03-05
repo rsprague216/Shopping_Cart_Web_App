@@ -55,6 +55,23 @@ describe('Header', () => {
     expect(screen.getByText('1')).toBeInTheDocument();
   });
 
+  it('renders a dark mode toggle button', () => {
+    renderHeader();
+    expect(screen.getByRole('button', { name: 'Toggle dark mode' })).toBeInTheDocument();
+  });
+
+  it('toggles dark class on html element when dark mode button is clicked', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const toggle = screen.getByRole('button', { name: 'Toggle dark mode' });
+
+    await user.click(toggle);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+
+    await user.click(toggle);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+  });
+
   it('hides the badge when the last item is removed from the cart', async () => {
     const user = userEvent.setup();
     localStorage.setItem('cartItems', JSON.stringify([

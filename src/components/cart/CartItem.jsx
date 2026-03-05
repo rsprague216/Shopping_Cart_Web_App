@@ -60,18 +60,18 @@ const CartItem = ({ id, title, price, image, quantity, onUpdateQuantity, onRemov
     };
 
     return (
-        <div onClick={handleCardClick} className="flex items-center gap-4 p-2 my-2 bg-blue-100 rounded cursor-pointer">
-            <div className="w-24 h-24 rounded bg-blue-300 p-1">
+        <div onClick={handleCardClick} className="flex items-center gap-4 p-2 my-2 bg-blue-100 dark:bg-slate-800 rounded cursor-pointer">
+            <div className="w-24 h-24 rounded bg-blue-300 dark:bg-slate-700 p-1">
                 <img src={image} alt={title} className="object-contain h-full w-full rounded" />
             </div>
             <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-blue-900 truncate" id={`title-${id}`}>{title}</h3>
-                <p className="text-sm font-bold pb-2">{`$${price.toFixed(2)}`}</p>
+                <h3 className="text-lg font-bold text-blue-900 dark:text-slate-100 truncate" id={`title-${id}`}>{title}</h3>
+                <p className="text-sm font-bold dark:text-slate-100 pb-2">{`$${price.toFixed(2)}`}</p>
                 <div className="flex">
                     <div className="flex items-center">
                         {/* Decrement button — triggers remove confirmation when qty is already 1 */}
                         <button
-                            className="px-2 py-1 bg-blue-300 text-white border border-blue-300 rounded-l cursor-pointer hover:bg-blue-400"
+                            className="px-2 py-1 bg-blue-300 dark:bg-slate-700 text-white border border-blue-300 dark:border-slate-600 rounded-l cursor-pointer hover:bg-blue-400 dark:hover:bg-slate-600"
                             aria-label="Decrease quantity"
                             onClick={(e) => { e.stopPropagation(); quantity === 1 ? setShowConfirm(true) : onUpdateQuantity(id, quantity - 1); }}
                         >
@@ -87,12 +87,12 @@ const CartItem = ({ id, title, price, image, quantity, onUpdateQuantity, onRemov
                             onChange={(e) => setInputValue(e.target.value)}
                             onBlur={handleBlur}
                             onKeyDown={(e) => { e.stopPropagation(); e.key === 'Enter' && handleBlur(); }}
-                            className="w-10 py-1 text-center border-t border-b border-blue-300"
+                            className="w-10 py-1 text-center border-t border-b border-blue-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
                             aria-labelledby={`title-${id}`}
                         />
                         {/* Increment button */}
                         <button
-                            className="px-2 py-1 bg-blue-300 text-white border border-blue-300 rounded-r cursor-pointer hover:bg-blue-400"
+                            className="px-2 py-1 bg-blue-300 dark:bg-slate-700 text-white border border-blue-300 dark:border-slate-600 rounded-r cursor-pointer hover:bg-blue-400 dark:hover:bg-slate-600"
                             aria-label="Increase quantity"
                             onClick={(e) => { e.stopPropagation(); onUpdateQuantity(id, quantity + 1); }}
                         >
@@ -101,7 +101,7 @@ const CartItem = ({ id, title, price, image, quantity, onUpdateQuantity, onRemov
                     </div>
                     {/* Trash button — always shows the remove confirmation modal */}
                     <button
-                        className="px-2 py-1 ml-2 text-red-500 bg-blue-300 border border-blue-300 rounded cursor-pointer hover:bg-red-400 hover:text-white"
+                        className="px-2 py-1 ml-2 text-red-500 bg-blue-300 dark:bg-slate-700 border border-blue-300 dark:border-slate-600 rounded cursor-pointer hover:bg-red-400 dark:hover:bg-red-500 hover:text-white"
                         aria-label="Remove from cart"
                         onClick={(e) => { e.stopPropagation(); setShowConfirm(true); }}
                     >

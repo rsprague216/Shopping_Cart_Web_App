@@ -1,9 +1,9 @@
 # Unit Test Results
 
-**Date**: 2026-02-24
+**Date**: 2026-03-05
 **Framework**: Vitest v4.0.18 + React Testing Library
 **Test Environment**: jsdom
-**Result**: ✅ All 110 tests passed across 13 test files
+**Result**: ✅ All 150 tests passed across 14 test files
 
 ---
 
@@ -11,12 +11,12 @@
 
 | Metric       | Value  |
 |--------------|--------|
-| Test Files   | 13     |
-| Total Tests  | 110    |
-| Passed       | 110    |
+| Test Files   | 14     |
+| Total Tests  | 150    |
+| Passed       | 150    |
 | Failed       | 0      |
 | Skipped      | 0      |
-| Duration     | ~3.5s  |
+| Duration     | ~3.3s  |
 
 ---
 
@@ -52,8 +52,8 @@ Tests the `useProduct` custom hook, which fetches a single product by ID.
 
 ### Layout
 
-#### `src/components/layout/Header.test.jsx` — 6 tests ✅
-Tests the `Header` component, including branding display and cart badge behavior.
+#### `src/components/layout/Header.test.jsx` — 8 tests ✅
+Tests the `Header` component, including branding display, cart badge behavior, and dark mode toggle.
 
 | Test | Result |
 |------|--------|
@@ -62,6 +62,8 @@ Tests the `Header` component, including branding display and cart badge behavior
 | does not show a count badge when the cart is empty | ✅ |
 | shows the badge with the correct total quantity when items exist | ✅ |
 | shows a badge of 1 for a single item with quantity 1 | ✅ |
+| renders a dark mode toggle button | ✅ |
+| toggles dark class on html element when dark mode button is clicked | ✅ |
 | hides the badge when the last item is removed from the cart | ✅ |
 
 ---
@@ -147,10 +149,35 @@ Tests the `StarRating` component, which renders a visual star rating using a CSS
 
 ---
 
+### Utilities
+
+#### `src/utils/promoCodes.test.js` — 15 tests ✅
+Tests the promo code utility functions: `validatePromoCode` and `computeCartTotals`.
+
+| Group | Test | Result |
+|-------|------|--------|
+| validatePromoCode | accepts SAVE10 | ✅ |
+| validatePromoCode | accepts SAVE20 when subtotal is exactly $100 | ✅ |
+| validatePromoCode | accepts SAVE20 when subtotal is above $100 | ✅ |
+| validatePromoCode | rejects SAVE20 when subtotal is below $100 | ✅ |
+| validatePromoCode | accepts FREESHIP | ✅ |
+| validatePromoCode | rejects unknown code | ✅ |
+| validatePromoCode | rejects empty string | ✅ |
+| validatePromoCode | rejects whitespace-only input | ✅ |
+| validatePromoCode | normalizes lowercase input (save10 → SAVE10) | ✅ |
+| validatePromoCode | normalizes mixed-case input (FreeShip → FREESHIP) | ✅ |
+| computeCartTotals | returns base shipping and no discount when no promo applied | ✅ |
+| computeCartTotals | applies 10% discount for SAVE10 | ✅ |
+| computeCartTotals | applies 20% discount for SAVE20 | ✅ |
+| computeCartTotals | sets shipping to 0 for FREESHIP | ✅ |
+| computeCartTotals | returns zero subtotal and only shipping cost for empty cart | ✅ |
+
+---
+
 ### Cart
 
-#### `src/components/cart/CartProvider.test.jsx` — 14 tests ✅
-Tests the `CartProvider` context and `useReducer`-based state management, covering all reducer actions and localStorage persistence.
+#### `src/components/cart/CartProvider.test.jsx` — 24 tests ✅
+Tests the `CartProvider` context and `useReducer`-based state management, covering all reducer actions, localStorage persistence, and promo code logic.
 
 | Group | Test | Result |
 |-------|------|--------|
@@ -168,6 +195,16 @@ Tests the `CartProvider` context and `useReducer`-based state management, coveri
 | localStorage persistence | writes items to localStorage when items change | ✅ |
 | localStorage persistence | loads existing items from localStorage on mount | ✅ |
 | localStorage persistence | starts with an empty cart when localStorage contains invalid JSON | ✅ |
+| APPLY_PROMO | stores the promo code when a valid code is applied | ✅ |
+| APPLY_PROMO | stores FREESHIP when that code is applied | ✅ |
+| APPLY_PROMO | rejects SAVE20 when subtotal is below $100 (returns error, no state change) | ✅ |
+| APPLY_PROMO | accepts SAVE20 when subtotal is at least $100 | ✅ |
+| REMOVE_PROMO | clears the applied promo code | ✅ |
+| SAVE20 auto-invalidation | removes SAVE20 when REMOVE_ITEM drops subtotal below $100 | ✅ |
+| SAVE20 auto-invalidation | removes SAVE20 when UPDATE_QUANTITY drops subtotal below $100 | ✅ |
+| appliedPromo localStorage persistence | writes appliedPromo to localStorage when a promo is applied | ✅ |
+| appliedPromo localStorage persistence | loads appliedPromo from localStorage on mount | ✅ |
+| appliedPromo localStorage persistence | does not restore SAVE20 from localStorage if the cart no longer qualifies | ✅ |
 
 ---
 
@@ -224,13 +261,13 @@ Tests the `CartRemove` confirmation modal component, which is rendered as a port
 
 ---
 
-#### `src/components/cart/CartSideBar.test.jsx` — 12 tests ✅
-Tests the `CartSideBar` component, covering empty/populated cart display, checkout button state, open/close behavior, and body scroll locking.
+#### `src/components/cart/CartSideBar.test.jsx` — 25 tests ✅
+Tests the `CartSideBar` component, covering empty/populated cart display, checkout button state, open/close behavior, body scroll locking, promo code input, and itemized price breakdown.
 
 | Group | Test | Result |
 |-------|------|--------|
 | empty cart state | shows "Your cart is empty" message when there are no items | ✅ |
-| empty cart state | displays a total of $0.00 when the cart is empty | ✅ |
+| empty cart state | displays a total equal to shipping cost only when the cart is empty | ✅ |
 | empty cart state | renders the checkout button in a disabled state when cart is empty | ✅ |
 | cart with items | renders a CartItem for each item in the cart | ✅ |
 | cart with items | calculates and displays the correct total price across multiple items | ✅ |
@@ -239,6 +276,19 @@ Tests the `CartSideBar` component, covering empty/populated cart display, checko
 | open/close behavior | closes when the backdrop overlay is clicked | ✅ |
 | open/close behavior | closes when the Escape key is pressed while the cart is open | ✅ |
 | open/close behavior | does NOT close when the Escape key is pressed while the cart is already closed | ✅ |
+| promo code input | renders the promo code input and Apply button | ✅ |
+| promo code input | shows an error message when an invalid code is submitted | ✅ |
+| promo code input | shows an error when SAVE20 is applied but subtotal is below $100 | ✅ |
+| promo code input | replaces the input with a badge when a valid code is applied | ✅ |
+| promo code input | restores the input and clears badge when Remove is clicked | ✅ |
+| promo code input | submits the promo code when Enter is pressed in the input | ✅ |
+| price breakdown | shows subtotal and shipping lines | ✅ |
+| price breakdown | shows $5.99 shipping when no promo is applied | ✅ |
+| price breakdown | shows "Free" shipping when FREESHIP is applied | ✅ |
+| price breakdown | shows a discount line when SAVE10 is applied | ✅ |
+| price breakdown | does not show a discount line when FREESHIP is applied | ✅ |
+| price breakdown | reflects the correct total with SAVE10 applied | ✅ |
+| price breakdown | reflects the correct total with FREESHIP applied | ✅ |
 | body scroll lock | calls disableBodyScroll when the cart opens | ✅ |
 | body scroll lock | calls enableBodyScroll when the cart closes | ✅ |
 
